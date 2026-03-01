@@ -10,7 +10,7 @@
 .console-header {
     background-color: #f0f0f0;
     padding: 5px 15px;
-    font-size: 12px;
+    font-size: 13px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -20,7 +20,7 @@
 
 #console-content {
     padding: 10px;
-    font-size: 13px;
+    font-size: 14px;
     overflow-y: auto;
     flex-grow: 1;
     color: #333;
@@ -31,16 +31,18 @@
     cursor: pointer;
     border: 1px solid #ccc;
     background: white;
-    font-size: 10px;
+    font-size: 13px;
     padding: 2px 5px;
 }
 
 #console-eval-bar {
     display: flex;
     align-items: center;
-    background-color: #50b2e3;
+    /*background-color: #50b2e3;*/
+    background-color: rgba(39, 46, 98); 
     padding: 4px 10px;
-    border-top: 1px solid #4092ba;
+    /*border-top: 1px solid #4092ba;*/
+    border-top: 1px solid rgba(22, 27, 69, 0.849);
     flex-shrink: 0;
 }
 
@@ -73,7 +75,7 @@
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 2px 12px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     border-radius: 4px;
     transition: background 0.2s;
