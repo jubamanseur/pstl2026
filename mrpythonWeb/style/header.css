@@ -23,6 +23,38 @@ div.buttons img:hover {
     transform: scale(1.2);
 }
 
+.logos {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo-stl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
+    color: #272e62;
+    font-size: 18px;
+}
+
+.small-logo {
+    height: 40px;
+    width: auto;
+    border-radius: 4px;
+}
+
+.logo-stl a {
+    font-size: 12px;
+    color: #272e62;
+    text-decoration: none;
+    margin-top: 5px;
+}
+
+.logo-stl a:hover {
+    text-decoration: underline;
+}
+
 .logo-univ img {
     height: 60px;
     width: auto;
