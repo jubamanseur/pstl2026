@@ -7,6 +7,8 @@
         
         <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
         
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material.min.css">
         <link rel="stylesheet" href="style/layout.css">
         <link rel="stylesheet" href="style/header.css">
         <link rel="stylesheet" href="style/editor.css">
@@ -33,7 +35,6 @@
             <div class="tabs-container" id="tabs-container"></div>
 
             <div class="editor-container" id="editor-container" style="display: none;">
-                <div class="line-numbers" id="line-numbers"></div>
                 <textarea class="code-input" id="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
             </div>
         </main>
@@ -61,6 +62,10 @@
             <div class="status-segment" id="status-python">Python 3.12 (Pyodide)</div>
         </footer>
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
         <script src="js/console.js"></script>
         <script src="js/tabs.js"></script>
         <script src="js/resizer.js"></script>
