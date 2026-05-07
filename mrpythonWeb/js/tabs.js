@@ -11,6 +11,170 @@ const codeTextarea = document.getElementById('code-editor');
 let editor = null;
 const statusMode = document.getElementById('status-mode');
 const statusPosition = document.getElementById('status-position');
+const guideBtn = document.getElementById('guide-btn');
+const guideOverlay = document.getElementById('guide-overlay');
+const guideTitle = document.getElementById('guide-title');
+const guideDescription = document.getElementById('guide-description');
+const guideCodeSnippet = document.getElementById('guide-code-snippet');
+const guideCopyCodeBtn = document.getElementById('guide-copy-code');
+const guidePrevBtn = document.getElementById('guide-prev');
+const guideNextBtn = document.getElementById('guide-next');
+const guideCloseBtn = document.getElementById('guide-close');
+const evalInputField = document.getElementById('eval-input');
+const consoleEvalBtn = document.getElementById('eval-btn');
+let guideIndex = 0;
+let guideCurrentTarget = null;
+let guideCurrentTargetListener = null;
+
+const guideSteps = [
+    {
+        title: 'Bienvenue dans utoPy',
+        description: 'Ce guide interactif vous accompagne pas à pas. Commencez par cliquer sur le bouton Nouveau fichier.',
+        highlight: newFileBtn,
+        waitFor: newFileBtn,
+        autoAdvance: true
+    },
+    {
+        title: 'Écrivez un programme simple',
+        description: 'Collez ce court code dans l’éditeur. Il affichera un message quand vous l’exécuterez.',
+        snippet: 'def saluer():\n    print("Bonjour, utoPy !")\n\nsaluer()',
+        copyLabel: 'Copier le code',
+        highlight: editorContainer
+    },
+    {
+        title: 'Exécutez le code',
+        description: 'Cliquez sur le bouton Exécuter pour lancer le programme depuis l’éditeur.',
+        highlight: runBtn,
+        waitFor: runBtn,
+        autoAdvance: true
+    },
+    {
+        title: 'Testez la console',
+        description: 'Copiez cette commande dans la console puis appuyez sur Eval pour voir l’output.',
+        snippet: 'print("Bonjour depuis la console !")',
+        copyLabel: 'Copier la commande',
+        prefillConsole: 'print("Bonjour depuis la console !")',
+        highlight: consoleEvalBtn,
+        waitFor: consoleEvalBtn,
+        autoAdvance: true
+    },
+    {
+        title: 'Terminé',
+        description: 'Bravo ! Vous avez suivi le guide et vu du code s’exécuter. Fermez le guide ou recommencez si vous voulez explorer encore.',
+        highlight: runBtn
+    }
+];
+
+function clearGuideHighlight() {
+    document.querySelectorAll('.guide-highlight').forEach(el => el.classList.remove('guide-highlight', 'guide-pulse'));
+    if (guideCurrentTarget && guideCurrentTargetListener) {
+        guideCurrentTarget.removeEventListener('click', guideCurrentTargetListener);
+        guideCurrentTarget = null;
+        guideCurrentTargetListener = null;
+    }
+}
+
+function setGuideWaitTarget(target, autoAdvance) {
+    if (!target) return;
+
+    guideNextBtn.disabled = true;
+    guideCurrentTarget = target;
+    guideCurrentTargetListener = () => {
+        guideNextBtn.disabled = false;
+        guideCurrentTarget.removeEventListener('click', guideCurrentTargetListener);
+        guideCurrentTargetListener = null;
+        logToConsole('Très bien ! Continuez le guide.', 'success');
+        if (autoAdvance) {
+            setTimeout(nextGuideStep, 300);
+        }
+    };
+    target.addEventListener('click', guideCurrentTargetListener, { once: true });
+}
+
+function showGuideStep() {
+    const step = guideSteps[guideIndex];
+
+    guideTitle.innerText = step.title;
+    guideDescription.innerText = step.description;
+
+    if (step.snippet) {
+        guideCodeSnippet.style.display = 'block';
+        guideCodeSnippet.textContent = step.snippet;
+        guideCopyCodeBtn.style.display = 'inline-flex';
+        guideCopyCodeBtn.innerText = step.copyLabel || 'Copier le code';
+        guideCopyCodeBtn.dataset.clipboard = step.snippet;
+    } else {
+        guideCodeSnippet.style.display = 'none';
+        guideCodeSnippet.textContent = '';
+        guideCopyCodeBtn.style.display = 'none';
+        guideCopyCodeBtn.dataset.clipboard = '';
+    }
+
+    guidePrevBtn.disabled = guideIndex === 0;
+    guideNextBtn.innerText = guideIndex === guideSteps.length - 1 ? 'Terminer' : 'Suivant';
+    guideNextBtn.disabled = !!step.waitFor;
+
+    clearGuideHighlight();
+    if (step.highlight) {
+        step.highlight.classList.add('guide-highlight', 'guide-pulse');
+    }
+
+    if (step.prefillConsole && evalInputField) {
+        evalInputField.value = step.prefillConsole;
+        evalInputField.focus();
+    }
+
+    if (step.waitFor) {
+        setGuideWaitTarget(step.waitFor);
+    }
+}
+
+function openGuide() {
+    guideOverlay.classList.add('active');
+    guideIndex = 0;
+    showGuideStep();
+}
+
+function closeGuide() {
+    guideOverlay.classList.remove('active');
+    clearGuideHighlight();
+}
+
+function nextGuideStep() {
+    if (guideIndex >= guideSteps.length - 1) {
+        closeGuide();
+        return;
+    }
+    guideIndex += 1;
+    showGuideStep();
+}
+
+function prevGuideStep() {
+    if (guideIndex <= 0) return;
+    guideIndex -= 1;
+    showGuideStep();
+}
+
+function copyGuideSnippet() {
+    const text = guideCopyCodeBtn.dataset.clipboard;
+    if (!text) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            logToConsole('Le code a été copié dans le presse-papiers.', 'success');
+        }).catch(() => {
+            logToConsole('Impossible de copier automatiquement. Utilisez Ctrl+C.', 'error');
+        });
+    } else {
+        logToConsole('Copie non supportée par ce navigateur.', 'error');
+    }
+}
+
+if (guideBtn) guideBtn.addEventListener('click', openGuide);
+if (guidePrevBtn) guidePrevBtn.addEventListener('click', prevGuideStep);
+if (guideNextBtn) guideNextBtn.addEventListener('click', nextGuideStep);
+if (guideCloseBtn) guideCloseBtn.addEventListener('click', closeGuide);
+if (guideCopyCodeBtn) guideCopyCodeBtn.addEventListener('click', copyGuideSnippet);
 
 /* --- ÉTAT DE L'APPLICATION --- */
 window.isStudentMode = true;

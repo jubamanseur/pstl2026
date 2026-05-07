@@ -37,6 +37,108 @@ header, #status-bar {
     background-color: #59b0e0;
 }
 
+#guide-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+#guide-overlay.active {
+    display: block;
+}
+
+#guide-overlay .guide-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+#guide-overlay .guide-panel {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    width: min(420px, calc(100% - 40px));
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    color: #222222;
+    pointer-events: auto;
+    z-index: 10000;
+}
+
+#guide-overlay .guide-panel h2 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+}
+
+#guide-overlay .guide-panel p {
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+#guide-overlay .guide-panel pre {
+    margin: 0 0 14px;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#guide-overlay .guide-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+#guide-overlay .guide-actions button {
+    border: none;
+    background-color: #272e62;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#guide-overlay .guide-actions button:hover {
+    background-color: #3b4a9d;
+    transform: translateY(-1px);
+}
+
+#guide-overlay .guide-actions button:disabled {
+    opacity: 0.45;
+    cursor: default;
+    transform: none;
+}
+
+.guide-highlight {
+    position: relative;
+    z-index: 1001 !important;
+    box-shadow: 0 0 0 8px rgba(255, 241, 118, 1), 0 0 20px rgba(255, 241, 118, 0.8);
+    border-radius: 12px;
+}
+
+.guide-highlight.guide-pulse {
+    animation: guidePulse 1.2s infinite ease-in-out;
+}
+
+@keyframes guidePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 8px rgba(255, 241, 118, 0.6), 0 0 20px rgba(255, 241, 118, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 0 16px rgba(255, 241, 118, 0.2), 0 0 30px rgba(255, 241, 118, 0.6);
+    }
+}
+
 #console-container {
     height: 150px; 
     min-height: 50px;
