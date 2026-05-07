@@ -7,8 +7,8 @@ const fileInput = document.getElementById('file-input');
 const newFileBtn = document.getElementById('new-file-btn');
 const tabsContainer = document.getElementById('tabs-container');
 const editorContainer = document.getElementById('editor-container');
-const editor = document.getElementById('code-editor');
-const lineNumbers = document.getElementById('line-numbers');
+const codeTextarea = document.getElementById('code-editor');
+let editor = null;
 const statusMode = document.getElementById('status-mode');
 const statusPosition = document.getElementById('status-position');
 
@@ -80,15 +80,48 @@ initWorker();
 
 /* --- FONCTIONS --- */
 
-function updateLineNumbers() {
-    const lines = editor.value.split('\n').length;
-    lineNumbers.innerHTML = Array(lines).fill(0).map((_, i) => `<span>${i + 1}</span>`).join('');
+function initCodeMirror() {
+    if (typeof CodeMirror === 'undefined' || !codeTextarea) return;
+
+    editor = CodeMirror.fromTextArea(codeTextarea, {
+        mode: 'python',
+        theme: 'material',
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        extraKeys: {
+            Tab: (cm) => {
+                if (cm.somethingSelected()) cm.indentSelection('add');
+                else cm.replaceSelection(' '.repeat(cm.getOption('indentUnit')), 'end');
+            },
+            'Shift-Tab': 'indentLess',
+            Enter: 'newlineAndIndent'
+        }
+    });
+
+    editor.setSize('100%', '100%');
+
+    editor.on('change', () => {
+        const activeTab = document.querySelector('.tab.active');
+        if (!activeTab) return;
+        const titleSpan = activeTab.querySelector('.tab-title');
+        const fileName = titleSpan.innerText.replace('*', '');
+        fileContent[fileName] = editor.getValue();
+        updateTabStatus(activeTab, fileName);
+    });
+
+    editor.on('cursorActivity', updateCursorInfo);
 }
+
+window.addEventListener('DOMContentLoaded', initCodeMirror);
 
 function updateTabStatus(tabElement, fileName) {
     const titleSpan = tabElement.querySelector('.tab-title');
     const isDirty = fileContent[fileName] !== savedFileContent[fileName];
-    titleSpan.innerText = isDirty ? fileName + "*" : fileName;
+    titleSpan.innerText = isDirty ? fileName + '*' : fileName;
 }
 
 function activateTab(tabElement) {
@@ -98,20 +131,22 @@ function activateTab(tabElement) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tabElement.classList.add('active');
     editorContainer.style.display = 'flex';
-    editor.value = fileContent[fileName] || "";
+    if (editor) {
+        editor.setValue(fileContent[fileName] || '');
+        editor.refresh();
+        editor.focus();
+    } else {
+        codeTextarea.value = fileContent[fileName] || '';
+    }
     updateTabStatus(tabElement, fileName);
-    updateLineNumbers();
+    updateCursorInfo();
     tabElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
 }
 
 function updateCursorInfo() {
-    const text = editor.value;
-    const cursorPos = editor.selectionStart;
-    const textBeforeCursor = text.substring(0, cursorPos);
-    const lines = textBeforeCursor.split('\n');
-    const currentLine = lines.length;
-    const currentCol = lines[lines.length - 1].length + 1;
-    statusPosition.innerText = `Li ${currentLine}, Col ${currentCol}`;
+    if (!editor) return;
+    const cursor = editor.getCursor();
+    statusPosition.innerText = `Li ${cursor.line + 1}, Col ${cursor.ch + 1}`;
 }
 
 function createNewTab(fileName) {
@@ -142,7 +177,7 @@ async function saveFile() {
     
     const titleSpan = activeTab.querySelector('.tab-title');
     const fileName = titleSpan.innerText.replace('*', '');
-    const content = editor.value;
+    const content = editor ? editor.getValue() : codeTextarea.value;
 
     // ESSAI MÉTHODE 1 : Sauvegarde directe
     if (window.showSaveFilePicker) {
@@ -242,20 +277,6 @@ function handlePythonResult(response) {
 
 /* --- ÉVÉNEMENTS --- */
 
-editor.addEventListener('input', () => {
-    const activeTab = document.querySelector('.tab.active');
-    if (activeTab) {
-        const titleSpan = activeTab.querySelector('.tab-title');
-        const fileName = titleSpan.innerText.replace('*', '');
-        fileContent[fileName] = editor.value;
-        updateTabStatus(activeTab, fileName);
-    }
-    updateLineNumbers();
-});
-
-editor.addEventListener('click', updateCursorInfo);
-editor.addEventListener('keyup', updateCursorInfo);
-
 newFileBtn.addEventListener('click', () => {
     let name = prompt("Nom du fichier :");
     if (name && name.trim() !== "") {
@@ -325,7 +346,7 @@ runBtn.addEventListener('click', () => {
     if (!activeTab) return;
 
     const fileName = activeTab.querySelector('.tab-title').innerText.replace('*', '');
-    const code = editor.value;
+    const code = editor ? editor.getValue() : codeTextarea.value;
 
     isRunning = true;
     runBtn.src = "images/stop_icon2.gif";
