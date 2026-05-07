@@ -209,7 +209,7 @@ sys.path.append('.')
         `.trim());
 
         window.isPyodideReady = true;
-        logToConsole("MrPython est prêt et chargé !", "success");
+        logToConsole("utoPy est prêt et chargé !", "success");
     } catch (err) {
         logToConsole("Erreur d'initialisation : " + err, "error");
     }
